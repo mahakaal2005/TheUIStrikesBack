@@ -1,137 +1,70 @@
-import { ApiKeyCheck } from "@/components/ApiKeyCheck";
-import Image from "next/image";
+"use client";
 
-const KeyFilesSection = () => (
-  <div className="bg-white px-8 py-4">
-    <h2 className="text-xl font-semibold mb-4">How it works:</h2>
-    <ul className="space-y-4 text-gray-600">
-      <li className="flex items-start gap-2">
-        <span>📄</span>
-        <span>
-          <code className="font-medium">src/app/layout.tsx</code> - Main layout
-          with TamboProvider
-        </span>
-      </li>
-      <li className="flex items-start gap-2">
-        <span>📄</span>
-        <span>
-          <code className="font-medium font-mono">src/app/chat/page.tsx</code> -
-          Chat page with TamboProvider and MCP integration
-        </span>
-      </li>
-      <li className="flex items-start gap-2">
-        <span>📄</span>
-        <span>
-          <code className="font-medium font-mono">
-            src/app/interactables/page.tsx
-          </code>{" "}
-          - Interactive demo page with tools and components
-        </span>
-      </li>
-      <li className="flex items-start gap-2">
-        <span>📄</span>
-        <span>
-          <code className="font-medium font-mono">
-            src/components/tambo/message-thread-full.tsx
-          </code>{" "}
-          - Chat UI
-        </span>
-      </li>
-      <li className="flex items-start gap-2">
-        <span>📄</span>
-        <span>
-          <code className="font-medium font-mono">
-            src/components/tambo/graph.tsx
-          </code>{" "}
-          - A generative graph component
-        </span>
-      </li>
-      <li className="flex items-start gap-2">
-        <span>📄</span>
-        <span>
-          <code className="font-medium font-mono">
-            src/services/population-stats.ts
-          </code>{" "}
-          - Example tool implementation with mock population data
-        </span>
-      </li>
-      <li className="flex items-start gap-2">
-        <span className="text-blue-500">📄</span>
-        <span>
-          <code className="font-medium font-mono">src/lib/tambo.ts</code> -
-          Component and tool registration
-        </span>
-      </li>
-      <li className="flex items-start gap-2">
-        <span className="text-blue-500">📄</span>
-        <span>
-          <code className="font-medium font-mono">README.md</code> - For more
-          details check out the README
-        </span>
-      </li>
-    </ul>
-    <div className="flex gap-4 flex-wrap mt-4">
-      <a
-        href="https://docs.tambo.co"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="px-6 py-3 rounded-md font-medium transition-colors text-lg mt-4 border border-gray-300 hover:bg-gray-50"
-      >
-        View Docs
-      </a>
-      <a
-        href="https://tambo.co/dashboard"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="px-6 py-3 rounded-md font-medium transition-colors text-lg mt-4 border border-gray-300 hover:bg-gray-50"
-      >
-        Dashboard
-      </a>
-    </div>
-  </div>
-);
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Activity, FileText } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen p-8 flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)]">
-      <main className="max-w-2xl w-full space-y-8">
-        <div className="flex flex-col items-center">
-          <a href="https://tambo.co" target="_blank" rel="noopener noreferrer">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)]">
+      <main className="max-w-4xl w-full p-8 space-y-12">
+        <div className="flex flex-col items-center text-center space-y-6">
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
             <Image
               src="/Octo-Icon.svg"
               alt="Tambo AI Logo"
               width={80}
               height={80}
-              className="mb-4"
+              className="mb-0"
             />
-          </a>
-          <h1 className="text-4xl text-center">tambo-ai chat template</h1>
-        </div>
-
-        <div className="w-full space-y-8">
-          <div className="bg-white px-8 py-4">
-            <h2 className="text-xl font-semibold mb-4">Setup Checklist</h2>
-            <ApiKeyCheck>
-              <div className="flex gap-4 flex-wrap">
-                <a
-                  href="/chat"
-                  className="px-6 py-3 rounded-md font-medium shadow-sm transition-colors text-lg mt-4 bg-[#7FFFC3] hover:bg-[#72e6b0] text-gray-800"
-                >
-                  Go to Chat →
-                </a>
-                <a
-                  href="/interactables"
-                  className="px-6 py-3 rounded-md font-medium shadow-sm transition-colors text-lg mt-4 bg-[#FFE17F] hover:bg-[#f5d570] text-gray-800"
-                >
-                  Interactables Demo →
-                </a>
-              </div>
-            </ApiKeyCheck>
           </div>
 
-          <KeyFilesSection />
+          <h1 className="text-5xl font-bold text-slate-900 tracking-tight">
+            Zero-Click EHR Scribe
+          </h1>
+          <p className="text-xl text-slate-500 max-w-2xl">
+            A Generative UI demo for the Tambo Hackathon. Experience the future of medical charting where the interface adapts to the conversation.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Main Demo Card */}
+          <Link href="/demos/ehr" className="group">
+            <div className="bg-white h-full p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-blue-300 transition-all duration-300 flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Activity className="text-blue-600 w-8 h-8" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors">Launch Demo</h2>
+              <p className="text-slate-500 mb-8">
+                Enter the EHR Scribe interface. Simulate a patient encounter and watch the chart build itself.
+              </p>
+              <div className="mt-auto flex items-center text-blue-600 font-medium">
+                Start Scenarios <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          </Link>
+
+          {/* Documentation/Info Card */}
+          <Link href="https://github.com/mahakaal2005/TheUIStrikesBack" target="_blank" className="group">
+            <div className="bg-white h-full p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-slate-300 transition-all duration-300 flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <FileText className="text-slate-600 w-8 h-8" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-slate-700 transition-colors">View Source</h2>
+              <p className="text-slate-500 mb-8">
+                Check out the code, PRD, and implementation details on GitHub.
+              </p>
+              <div className="mt-auto flex items-center text-slate-600 font-medium">
+                Open Repository <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          </Link>
         </div>
       </main>
+
+      <footer className="py-8 text-slate-400 text-sm">
+        Built with Tambo AI SDK & Next.js
+      </footer>
     </div>
   );
 }

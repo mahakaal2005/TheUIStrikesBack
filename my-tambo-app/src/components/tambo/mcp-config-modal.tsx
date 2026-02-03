@@ -209,9 +209,8 @@ function MyApp() {
                 Setup Instructions
               </span>
               <ChevronDown
-                className={`w-4 h-4 text-foreground transition-transform duration-200 ${
-                  showInstructions ? "rotate-180" : ""
-                }`}
+                className={`w-4 h-4 text-foreground transition-transform duration-200 ${showInstructions ? "rotate-180" : ""
+                  }`}
               />
             </button>
             {showInstructions && (
@@ -479,27 +478,31 @@ export type McpServer = string | { url: string };
  * ```
  */
 export function useMcpServers(): McpServer[] {
-  const [servers, setServers] = React.useState<McpServer[]>(() => {
-    if (typeof window === "undefined") return [];
+  const [servers, setServers] = React.useState<McpServer[]>([]);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+    if (typeof window === "undefined") return;
 
     const savedServersData = localStorage.getItem("mcp-servers");
-    if (!savedServersData) return [];
+    if (!savedServersData) return;
 
     try {
-      const servers = JSON.parse(savedServersData);
+      const parsedServers = JSON.parse(savedServersData);
       // Deduplicate servers by URL to prevent multiple tool registrations
       const uniqueUrls = new Set();
-      return servers.filter((server: McpServer) => {
+      const deduped = parsedServers.filter((server: McpServer) => {
         const url = typeof server === "string" ? server : server.url;
         if (uniqueUrls.has(url)) return false;
         uniqueUrls.add(url);
         return true;
       });
+      setServers(deduped);
     } catch (e) {
       console.error("Failed to parse saved MCP servers", e);
-      return [];
     }
-  });
+  }, []);
 
   React.useEffect(() => {
     const updateServers = () => {
@@ -545,6 +548,8 @@ export function useMcpServers(): McpServer[] {
       window.removeEventListener("storage", handleStorageEvent);
     };
   }, []);
+
+  if (!mounted) return [];
 
   return servers;
 }

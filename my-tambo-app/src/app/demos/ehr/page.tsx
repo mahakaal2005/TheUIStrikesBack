@@ -1,52 +1,65 @@
+'use client';
+
 import React from 'react';
+import { PatientVitalsCard } from '@/components/demos/ehr/PatientVitalsCard';
+import { BodyMapSelector } from '@/components/demos/ehr/BodyMapSelector';
+import { PrescriptionPad } from '@/components/demos/ehr/PrescriptionPad';
+import { TamboProvider } from "@tambo-ai/react";
+import { components, tools } from "@/lib/tambo";
+import { MessageThreadFull } from "@/components/tambo/message-thread-full";
+import { MedicalProvider } from "@/contexts/MedicalContext";
+import { useMcpServers } from "@/components/tambo/mcp-config-modal";
 
 export default function EHRPage() {
+    const mcpServers = useMcpServers();
+
     return (
-        <div className="flex h-screen bg-slate-50">
-            {/* Left: Chat/Transcript Log */}
-            <div className="w-1/3 border-r border-gray-200 bg-white p-4 flex flex-col">
-                <h2 className="text-lg font-semibold mb-4 text-gray-800">Transcript</h2>
-                <div className="flex-1 overflow-y-auto space-y-4 text-gray-600">
-                    <p className="italic text-sm">Waiting for conversation to start...</p>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                    {/* Placeholder for Input */}
-                    <div className="h-12 bg-gray-50 rounded border border-gray-300 flex items-center px-4 text-gray-400">
-                        Listening...
-                    </div>
-                </div>
-            </div>
+        <TamboProvider
+            apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
+            components={components}
+            tools={tools}
+            tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
+            mcpServers={mcpServers}
+        >
+            <MedicalProvider>
+                <div className="flex h-screen bg-slate-50">
+                    {/* Left: Chat/Transcript Log */}
+                    <div className="w-1/3 border-r border-gray-200 bg-white flex flex-col">
+                        <div className="p-4 border-b border-gray-100">
+                            <h2 className="text-lg font-semibold text-gray-800">Transcript</h2>
+                        </div>
 
-            {/* Right: The "Patient Chart" (Generative UI Area) */}
-            <div className="w-2/3 p-8 overflow-y-auto">
-                <div className="max-w-4xl mx-auto space-y-8">
-                    <h1 className="text-2xl font-bold text-gray-900">Patient Chart</h1>
-
-                    {/* Vitals Section Placeholder */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200/60">
-                        <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Live Vitals</h3>
-                        <div className="h-20 bg-gray-50 rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-400">
-                            Vitals Monitor Component
+                        <div className="flex-1 overflow-hidden relative">
+                            {/* Using MessageThreadFull for the complete chat experience */}
+                            <MessageThreadFull />
                         </div>
                     </div>
 
-                    {/* Body Map Section Placeholder */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200/60">
-                        <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Symptom Map</h3>
-                        <div className="h-64 bg-gray-50 rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-400">
-                            Body Map Component
-                        </div>
-                    </div>
+                    {/* Right: The "Patient Chart" (Generative UI Area) */}
+                    <div className="w-2/3 p-8 overflow-y-auto">
+                        <div className="max-w-xl mx-auto space-y-8">
+                            <h1 className="text-2xl font-bold text-gray-900 mb-6">Patient Chart</h1>
 
-                    {/* Prescription Section Placeholder */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200/60">
-                        <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Plan & Orders</h3>
-                        <div className="h-40 bg-gray-50 rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-400">
-                            Prescription Pad Component
+                            {/* Components rendered here will be "live" if they are wrapped with withInteractable */}
+                            {/* We are passing initial/default props, but Tambo should take over if it targets them */}
+
+                            {/* Vitals Section */}
+                            <PatientVitalsCard
+                                heartRate={72}
+                                bloodPressure="120/80"
+                                temperature={98.6}
+                                oxygenSat={98}
+                            />
+
+                            {/* Body Map Section */}
+                            <BodyMapSelector highlightedRegions={[]} />
+
+                            {/* Prescription Section */}
+                            <PrescriptionPad />
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </MedicalProvider>
+        </TamboProvider>
     );
 }

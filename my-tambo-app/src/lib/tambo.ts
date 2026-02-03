@@ -17,6 +17,9 @@ import {
 import type { TamboComponent } from "@tambo-ai/react";
 import { TamboTool } from "@tambo-ai/react";
 import { z } from "zod";
+import { PatientVitalsCard, patientVitalsSchema } from "@/components/demos/ehr/PatientVitalsCard";
+import { BodyMapSelector, bodyMapSchema } from "@/components/demos/ehr/BodyMapSelector";
+import { PrescriptionPad, prescriptionPadSchema } from "@/components/demos/ehr/PrescriptionPad";
 
 /**
  * tools
@@ -97,6 +100,24 @@ export const components: TamboComponent[] = [
       "A component that displays options as clickable cards with links and summaries with the ability to select multiple items.",
     component: DataCard,
     propsSchema: dataCardSchema,
+  },
+  {
+    name: "PatientVitalsCard",
+    description: "Display the patient's vital signs including heart rate, blood pressure, temperature, and oxygen saturation.",
+    component: PatientVitalsCard,
+    propsSchema: patientVitalsSchema,
+  },
+  {
+    name: "BodyMapSelector",
+    description: "Visual body map to highlight regions where the patient is experiencing symptoms or pain.",
+    component: BodyMapSelector,
+    propsSchema: bodyMapSchema,
+  },
+  {
+    name: "PrescriptionPad",
+    description: "A prescription form to draft, review, and sign medication orders.",
+    component: PrescriptionPad,
+    propsSchema: prescriptionPadSchema,
   },
   // Add more components here
 ];
