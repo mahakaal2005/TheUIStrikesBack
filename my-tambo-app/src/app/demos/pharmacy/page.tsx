@@ -81,7 +81,7 @@ export default function PharmacyPage() {
                                         <div key={rx.id} className="bg-white p-4 rounded-xl border border-emerald-100 flex justify-between items-center">
                                             <div>
                                                 <h3 className="font-medium text-slate-900">{rx.medicationName}</h3>
-                                                <p className="text-xs text-emerald-600 font-medium">Ready since {rx.filledAt?.toLocaleTimeString()}</p>
+                                                <p className="text-xs text-emerald-600 font-medium">Ready since {rx.filledAt ? new Date(rx.filledAt).toLocaleTimeString() : ''}</p>
                                             </div>
                                             <button
                                                 onClick={() => handleMarkPickedUp(rx)}

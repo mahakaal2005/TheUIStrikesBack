@@ -50,7 +50,7 @@ export const PrescriptionPadBase = ({ data, onSign, onReject }: PrescriptionPadP
     const isSigned = internalState.status === 'signed';
 
     // Handler wrappers for internal state if needed
-    const { addPrescription } = useHealthcare();
+    const { addPrescription, activePatient } = useHealthcare();
 
     const handleSign = () => {
         setInternalState(prev => ({ ...prev, status: 'signed' }));
@@ -58,7 +58,7 @@ export const PrescriptionPadBase = ({ data, onSign, onReject }: PrescriptionPadP
 
         if (internalState.medication) {
             addPrescription({
-                patientId: 'p-123',
+                patientId: activePatient.id,
                 medicationName: internalState.medication,
                 dosage: internalState.dosage || 'As directed',
                 instructions: internalState.notes || 'Take as prescribed',

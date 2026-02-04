@@ -145,7 +145,7 @@ export function HealthcareProvider({ children }: { children: ReactNode }) {
     const addPrescription = (data: Omit<Prescription, 'id' | 'status' | 'prescribedAt'>) => {
         const newPrescription: Prescription = {
             ...data,
-            id: Math.random().toString(36).substring(7),
+            id: crypto.randomUUID(),
             status: 'pending',
             prescribedAt: new Date(),
         };
@@ -165,7 +165,7 @@ export function HealthcareProvider({ children }: { children: ReactNode }) {
     const addLabOrder = (data: Omit<LabOrder, 'id' | 'status' | 'orderedAt'>) => {
         const newOrder: LabOrder = {
             ...data,
-            id: Math.random().toString(36).substring(7),
+            id: crypto.randomUUID(),
             status: 'ordered',
             orderedAt: new Date(),
         };
@@ -182,7 +182,7 @@ export function HealthcareProvider({ children }: { children: ReactNode }) {
     const addSymptom = (data: Omit<Symptom, 'id' | 'recordedAt'>) => {
         const newSymptom: Symptom = {
             ...data,
-            id: Math.random().toString(36).substring(7),
+            id: crypto.randomUUID(),
             recordedAt: new Date(),
         };
         saveSymptoms([newSymptom, ...activeSymptoms]);

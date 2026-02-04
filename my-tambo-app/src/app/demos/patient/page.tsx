@@ -33,10 +33,19 @@ const patientComponents = [
 
 export default function GenerativePatientPage() {
     const mcpServers = useMcpServers();
+    const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
+
+    if (!apiKey) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-slate-50">
+                <p className="text-red-600">Missing NEXT_PUBLIC_TAMBO_API_KEY environment variable.</p>
+            </div>
+        );
+    }
 
     return (
         <TamboProvider
-            apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
+            apiKey={apiKey}
             components={patientComponents}
             tools={patientTools}
             tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}

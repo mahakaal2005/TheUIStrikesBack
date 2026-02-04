@@ -112,7 +112,7 @@ export const BodyMapSelectorBase = ({ highlightedRegions = [] }: BodyMapProps) =
                             style={{ top: pos.top, left: pos.left }}
                         >
                             <div className="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg border border-white/20 whitespace-nowrap z-10 animate-in fade-in zoom-in duration-300">
-                                {key.replace('_', ' ').toUpperCase()}
+                                {key.replaceAll('_', ' ').toUpperCase()}
                             </div>
                         </div>
                     )
@@ -127,7 +127,7 @@ export const BodyMapSelectorBase = ({ highlightedRegions = [] }: BodyMapProps) =
                             activeRegions.map((region) => (
                                 <span key={region} className="px-2.5 py-1 bg-white border border-slate-200 rounded-md text-xs font-semibold text-slate-700 shadow-sm flex items-center gap-1.5">
                                     <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                    {region.replace('_', ' ')}
+                                    {region.replaceAll('_', ' ')}
                                 </span>
                             ))
                         ) : (

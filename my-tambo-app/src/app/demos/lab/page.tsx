@@ -63,7 +63,7 @@ export default function LabPage() {
                                                     <h3 className="font-bold text-lg text-slate-900">{order.testName}</h3>
                                                     <p className="text-slate-500 text-sm">Patient ID: {order.patientId}</p>
                                                     <p className="text-xs text-slate-400 mt-1">
-                                                        Ordered: {order.orderedAt.toLocaleTimeString()}
+                                                        Ordered: {new Date(order.orderedAt).toLocaleTimeString()}
                                                     </p>
                                                 </div>
                                                 <button

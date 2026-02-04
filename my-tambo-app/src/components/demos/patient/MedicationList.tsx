@@ -3,22 +3,12 @@
 import React from 'react';
 import { Pill } from 'lucide-react';
 import { z } from 'zod';
+import { useHealthcare } from '@/contexts/HealthcareContext';
 
 export const medicationListSchema = z.object({});
 
 export function MedicationList() {
-    const [medications, setMedications] = React.useState<any[]>([]);
-
-    React.useEffect(() => {
-        try {
-            const stored = localStorage.getItem('healthcare_prescriptions');
-            if (stored) {
-                setMedications(JSON.parse(stored));
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }, []);
+    const { prescriptions: medications } = useHealthcare();
 
     if (medications.length === 0) {
         return (
@@ -42,7 +32,7 @@ export function MedicationList() {
                 {medications.map((med, idx) => (
                     <div key={idx} className="p-3 bg-slate-50 rounded-lg border border-slate-100">
                         <div className="flex justify-between items-start">
-                            <div className="font-semibold text-slate-900">{med.medicationName || med.name}</div>
+                            <div className="font-semibold text-slate-900">{med.medicationName}</div>
                             {med.status && (
                                 <span className="text-[10px] uppercase font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                                     {med.status.replace(/_/g, ' ')}

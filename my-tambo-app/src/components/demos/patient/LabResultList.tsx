@@ -3,22 +3,12 @@
 import React from 'react';
 import { Beaker } from 'lucide-react';
 import { z } from 'zod';
+import { useHealthcare } from '@/contexts/HealthcareContext';
 
 export const labResultListSchema = z.object({});
 
 export function LabResultList() {
-    const [results, setResults] = React.useState<any[]>([]);
-
-    React.useEffect(() => {
-        try {
-            const stored = localStorage.getItem('healthcare_lab_orders');
-            if (stored) {
-                setResults(JSON.parse(stored));
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }, []);
+    const { labOrders: results } = useHealthcare();
 
     if (results.length === 0) {
         return (

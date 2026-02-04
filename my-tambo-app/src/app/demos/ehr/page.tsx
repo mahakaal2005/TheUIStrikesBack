@@ -14,7 +14,7 @@ import { useHealthcare } from "@/contexts/HealthcareContext";
 
 export default function EHRPage() {
     const mcpServers = useMcpServers();
-    const { addLabOrder } = useHealthcare();
+    const { addLabOrder, activePatient } = useHealthcare();
 
     return (
         <TamboProvider
@@ -64,20 +64,20 @@ export default function EHRPage() {
                             <div className="pt-8 border-t border-slate-200 mt-8">
                                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Ecosystem Quick Links</h3>
                                 <div className="flex gap-4">
-                                    <a href="/demos/patient" target="_blank" className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200">
+                                    <a href="/demos/patient" target="_blank" rel="noopener" className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200">
                                         Open Patient Portal
                                     </a>
-                                    <a href="/demos/lab" target="_blank" className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-200">
+                                    <a href="/demos/lab" target="_blank" rel="noopener" className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-200">
                                         Open Lab Portal
                                     </a>
-                                    <a href="/demos/pharmacy" target="_blank" className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200">
+                                    <a href="/demos/pharmacy" target="_blank" rel="noopener" className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200">
                                         Open Pharmacy Portal
                                     </a>
                                 </div>
                                 <div className="mt-4">
                                     <button
                                         onClick={() => addLabOrder({
-                                            patientId: 'p-123',
+                                            patientId: activePatient.id,
                                             testName: 'Complete Blood Count (CBC)',
                                             notes: 'Check for infection'
                                         })}

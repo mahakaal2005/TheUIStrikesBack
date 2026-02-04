@@ -1,6 +1,6 @@
 import { TamboTool } from "@tambo-ai/react";
 import { z } from "zod";
-import { Prescription, LabOrder, Patient, Symptom } from "@/contexts/HealthcareContext";
+import { Prescription, LabOrder, Symptom } from "@/contexts/HealthcareContext";
 import { bodyMapSchema } from "@/components/demos/ehr/BodyMapSelector";
 
 // Helper to read from localStorage since tools run outside React Context
@@ -60,7 +60,10 @@ export const getPatientSymptoms = async () => {
 };
 
 export const recordPatientSymptom = async (args: { region: string, description: string, severity: 'mild' | 'moderate' | 'severe' }) => {
-    saveSymptom(args);
+    const result = await saveSymptom(args);
+    if (!result) {
+        return { success: false, message: "Failed to record symptom due to storage error." };
+    }
     return { success: true, message: `Recorded ${args.severity} ${args.description} in ${args.region} region.` };
 };
 
