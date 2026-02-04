@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useHealthcare } from '@/contexts/HealthcareContext';
 import { Pill, Check, X, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
@@ -49,9 +50,20 @@ export const PrescriptionPadBase = ({ data, onSign, onReject }: PrescriptionPadP
     const isSigned = internalState.status === 'signed';
 
     // Handler wrappers for internal state if needed
+    const { addPrescription } = useHealthcare();
+
     const handleSign = () => {
         setInternalState(prev => ({ ...prev, status: 'signed' }));
         onSign?.();
+
+        if (internalState.medication) {
+            addPrescription({
+                patientId: 'p-123',
+                medicationName: internalState.medication,
+                dosage: internalState.dosage || 'As directed',
+                instructions: internalState.notes || 'Take as prescribed',
+            });
+        }
     };
 
     const handleReject = () => {
