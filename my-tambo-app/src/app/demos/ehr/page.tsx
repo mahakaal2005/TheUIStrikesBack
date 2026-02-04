@@ -10,8 +10,11 @@ import { MessageThreadFull } from "@/components/tambo/message-thread-full";
 import { MedicalProvider } from "@/contexts/MedicalContext";
 import { useMcpServers } from "@/components/tambo/mcp-config-modal";
 
+import { useHealthcare } from "@/contexts/HealthcareContext";
+
 export default function EHRPage() {
     const mcpServers = useMcpServers();
+    const { addLabOrder, activePatient } = useHealthcare();
 
     return (
         <TamboProvider
@@ -56,6 +59,34 @@ export default function EHRPage() {
 
                             {/* Prescription Section */}
                             <PrescriptionPad />
+
+                            {/* Quick Navigation for Demo */}
+                            <div className="pt-8 border-t border-slate-200 mt-8">
+                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Ecosystem Quick Links</h3>
+                                <div className="flex gap-4">
+                                    <a href="/demos/patient" target="_blank" rel="noopener" className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200">
+                                        Open Patient Portal
+                                    </a>
+                                    <a href="/demos/lab" target="_blank" rel="noopener" className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-200">
+                                        Open Lab Portal
+                                    </a>
+                                    <a href="/demos/pharmacy" target="_blank" rel="noopener" className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200">
+                                        Open Pharmacy Portal
+                                    </a>
+                                </div>
+                                <div className="mt-4">
+                                    <button
+                                        onClick={() => addLabOrder({
+                                            patientId: activePatient.id,
+                                            testName: 'Complete Blood Count (CBC)',
+                                            notes: 'Check for infection'
+                                        })}
+                                        className="text-xs text-slate-400 hover:text-slate-600 underline"
+                                    >
+                                        [Debug] Simulate: Order Blood Test
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
