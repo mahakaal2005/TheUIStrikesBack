@@ -46,6 +46,16 @@ export interface Symptom {
     recordedAt: Date;
 }
 
+
+export interface VitalEntry {
+    id: string;
+    patientId: string;
+    type: 'heart_rate' | 'blood_pressure' | 'temperature' | 'oxygen_sat';
+    value: number; // Normalized numeric value
+    meta?: string; // Original string value if needed (e.g. "120/80")
+    recordedAt: Date;
+}
+
 export interface Patient {
     id: string;
     name: string;
@@ -58,12 +68,14 @@ interface HealthcareContextType {
     prescriptions: Prescription[];
     labOrders: LabOrder[];
     activeSymptoms: Symptom[];
+    vitalsHistory: VitalEntry[];
     addPrescription: (prescription: Omit<Prescription, 'id' | 'status' | 'prescribedAt'>) => void;
     updatePrescriptionStatus: (id: string, status: PrescriptionStatus) => void;
     addLabOrder: (order: Omit<LabOrder, 'id' | 'status' | 'orderedAt'>) => void;
     updateLabOrder: (id: string, updates: Partial<LabOrder>) => void;
     addSymptom: (symptom: Omit<Symptom, 'id' | 'recordedAt'>) => void;
     resolveSymptom: (id: string) => void;
+    addVitalEntry: (entry: Omit<VitalEntry, 'id' | 'recordedAt'>) => void;
 }
 
 // --- Context ---
@@ -83,6 +95,7 @@ export function HealthcareProvider({ children }: { children: ReactNode }) {
     const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
     const [labOrders, setLabOrders] = useState<LabOrder[]>([]);
     const [activeSymptoms, setActiveSymptoms] = useState<Symptom[]>([]);
+    const [vitalsHistory, setVitalsHistory] = useState<VitalEntry[]>([]);
     const [isInitialized, setIsInitialized] = useState(false);
 
     // Initial load from localStorage
@@ -107,6 +120,30 @@ export function HealthcareProvider({ children }: { children: ReactNode }) {
                     setActiveSymptoms(JSON.parse(storedSx, (key, value) =>
                         key.endsWith('At') ? new Date(value) : value
                     ));
+                }
+
+                const storedVitals = localStorage.getItem('healthcare_vitals');
+                if (storedVitals) {
+                    setVitalsHistory(JSON.parse(storedVitals, (key, value) =>
+                        key.endsWith('At') ? new Date(value) : value
+                    ));
+                } else {
+                    // Seed initial mock data for demo if empty
+                    const now = new Date();
+                    const mockVitals: VitalEntry[] = [];
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date(now);
+                        date.setDate(date.getDate() - i);
+                        // Mock BP
+                        mockVitals.push({
+                            id: `bp-${i}`, patientId: 'p-123', type: 'blood_pressure', value: 115 + Math.floor(Math.random() * 15), meta: '120/80', recordedAt: date
+                        });
+                        // Mock HR
+                        mockVitals.push({
+                            id: `hr-${i}`, patientId: 'p-123', type: 'heart_rate', value: 65 + Math.floor(Math.random() * 20), recordedAt: date
+                        });
+                    }
+                    saveVitals(mockVitals);
                 }
             } catch (e) {
                 console.error("Failed to load healthcare state", e);
@@ -140,6 +177,11 @@ export function HealthcareProvider({ children }: { children: ReactNode }) {
     const saveSymptoms = (newSx: Symptom[]) => {
         setActiveSymptoms(newSx);
         localStorage.setItem('healthcare_symptoms', JSON.stringify(newSx));
+    };
+
+    const saveVitals = (newVitals: VitalEntry[]) => {
+        setVitalsHistory(newVitals);
+        localStorage.setItem('healthcare_vitals', JSON.stringify(newVitals));
     };
 
     const addPrescription = (data: Omit<Prescription, 'id' | 'status' | 'prescribedAt'>) => {
@@ -193,7 +235,16 @@ export function HealthcareProvider({ children }: { children: ReactNode }) {
         saveSymptoms(updated);
     };
 
-    if (!isInitialized) return null; // Prevent hydration mismatch
+    const addVitalEntry = (data: Omit<VitalEntry, 'id' | 'recordedAt'>) => {
+        const newEntry: VitalEntry = {
+            ...data,
+            id: crypto.randomUUID(),
+            recordedAt: new Date(),
+        };
+        saveVitals([...vitalsHistory, newEntry]);
+    };
+
+    // if (!isInitialized) return null; // Removed to allow SSR rendering
 
     return (
         <HealthcareContext.Provider value={{
@@ -207,6 +258,8 @@ export function HealthcareProvider({ children }: { children: ReactNode }) {
             updateLabOrder,
             addSymptom,
             resolveSymptom,
+            addVitalEntry,
+            vitalsHistory,
         }}>
             {children}
         </HealthcareContext.Provider>

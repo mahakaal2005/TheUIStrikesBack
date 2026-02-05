@@ -4,6 +4,9 @@ import React from 'react';
 import { PatientVitalsCard } from '@/components/demos/ehr/PatientVitalsCard';
 import { BodyMapSelector } from '@/components/demos/ehr/BodyMapSelector';
 import { PrescriptionPad } from '@/components/demos/ehr/PrescriptionPad';
+import { LivingTreatmentTimeline } from '@/components/demos/ehr/LivingTreatmentTimeline';
+import { DashboardWidget } from '@/components/ui/dashboard-widget';
+import { Activity, GitGraph, User, FileText } from 'lucide-react';
 import { TamboProvider } from "@tambo-ai/react";
 import { components, tools } from "@/lib/tambo";
 import { MessageThreadFull } from "@/components/tambo/message-thread-full";
@@ -40,25 +43,36 @@ export default function EHRPage() {
 
                     {/* Right: The "Patient Chart" (Generative UI Area) */}
                     <div className="w-2/3 p-8 overflow-y-auto">
-                        <div className="max-w-xl mx-auto space-y-8">
+                        <div className="max-w-screen-2xl mx-auto space-y-8">
                             <h1 className="text-2xl font-bold text-gray-900 mb-6">Patient Chart</h1>
 
                             {/* Components rendered here will be "live" if they are wrapped with withInteractable */}
                             {/* We are passing initial/default props, but Tambo should take over if it targets them */}
 
-                            {/* Vitals Section */}
-                            <PatientVitalsCard
-                                heartRate={72}
-                                bloodPressure="120/80"
-                                temperature={98.6}
-                                oxygenSat={98}
-                            />
+                            {/* Dashboard Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 auto-rows-[minmax(450px,auto)] w-full">
+                                {/* 1. Vitals */}
+                                <DashboardWidget title="Live Vitals Monitor" icon={Activity} className="h-full">
+                                    <PatientVitalsCard />
+                                </DashboardWidget>
 
-                            {/* Body Map Section */}
-                            <BodyMapSelector highlightedRegions={[]} />
+                                {/* 2. Timeline */}
+                                <DashboardWidget title="Treatment Timeline" icon={GitGraph}>
+                                    <LivingTreatmentTimeline timeframe="7d" />
+                                </DashboardWidget>
 
-                            {/* Prescription Section */}
-                            <PrescriptionPad />
+                                {/* 3. Symptom Map */}
+                                <DashboardWidget title="Symptom Topology" icon={User}>
+                                    <div className="flex justify-center h-full items-center">
+                                        <BodyMapSelector highlightedRegions={[]} />
+                                    </div>
+                                </DashboardWidget>
+
+                                {/* 4. Prescription Pad */}
+                                <DashboardWidget title="Prescription Pad" icon={FileText}>
+                                    <PrescriptionPad />
+                                </DashboardWidget>
+                            </div>
 
                             {/* Quick Navigation for Demo */}
                             <div className="pt-8 border-t border-slate-200 mt-8">

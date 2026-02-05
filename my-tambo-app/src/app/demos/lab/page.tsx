@@ -9,8 +9,12 @@ export default function LabPage() {
     const [selectedOrder, setSelectedOrder] = useState<LabOrder | null>(null);
     const [resultValue, setResultValue] = useState('');
 
-    const pendingOrders = labOrders.filter(o => o.status === 'ordered');
-    const completedOrders = labOrders.filter(o => o.status === 'completed');
+    const [isMounted, setIsMounted] = useState(false);
+    React.useEffect(() => { setIsMounted(true); }, []);
+
+    const orders = labOrders || [];
+    const pendingOrders = orders.filter(o => o.status === 'ordered');
+    const completedOrders = orders.filter(o => o.status === 'completed');
 
     const handleCompleteOrder = (order: LabOrder) => {
         updateLabOrder(order.id, {
@@ -63,7 +67,7 @@ export default function LabPage() {
                                                     <h3 className="font-bold text-lg text-slate-900">{order.testName}</h3>
                                                     <p className="text-slate-500 text-sm">Patient ID: {order.patientId}</p>
                                                     <p className="text-xs text-slate-400 mt-1">
-                                                        Ordered: {new Date(order.orderedAt).toLocaleTimeString()}
+                                                        Ordered: {isMounted ? new Date(order.orderedAt).toLocaleTimeString() : ''}
                                                     </p>
                                                 </div>
                                                 <button
