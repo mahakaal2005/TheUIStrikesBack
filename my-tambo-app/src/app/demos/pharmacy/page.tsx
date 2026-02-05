@@ -8,9 +8,13 @@ export default function PharmacyPage() {
     const { prescriptions, updatePrescriptionStatus } = useHealthcare();
     const [selectedRx, setSelectedRx] = useState<Prescription | null>(null);
 
-    const pendingRx = prescriptions.filter(p => p.status === 'pending');
-    const readyRx = prescriptions.filter(p => p.status === 'ready_for_pickup');
-    const pickedUpRx = prescriptions.filter(p => p.status === 'picked_up');
+    const [isMounted, setIsMounted] = useState(false);
+    React.useEffect(() => { setIsMounted(true); }, []);
+
+    const rxList = prescriptions || [];
+    const pendingRx = rxList.filter(p => p.status === 'pending');
+    const readyRx = rxList.filter(p => p.status === 'ready_for_pickup');
+    const pickedUpRx = rxList.filter(p => p.status === 'picked_up');
 
     const handleFulfillRx = (rx: Prescription) => {
         updatePrescriptionStatus(rx.id, 'ready_for_pickup');
@@ -81,7 +85,7 @@ export default function PharmacyPage() {
                                         <div key={rx.id} className="bg-white p-4 rounded-xl border border-emerald-100 flex justify-between items-center">
                                             <div>
                                                 <h3 className="font-medium text-slate-900">{rx.medicationName}</h3>
-                                                <p className="text-xs text-emerald-600 font-medium">Ready since {rx.filledAt ? new Date(rx.filledAt).toLocaleTimeString() : ''}</p>
+                                                <p className="text-xs text-emerald-600 font-medium">Ready since {isMounted && rx.filledAt ? new Date(rx.filledAt).toLocaleTimeString() : ''}</p>
                                             </div>
                                             <button
                                                 onClick={() => handleMarkPickedUp(rx)}

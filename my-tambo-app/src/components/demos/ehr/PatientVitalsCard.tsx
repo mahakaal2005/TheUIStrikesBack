@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Activity, Heart, Thermometer, Wind } from 'lucide-react';
+import { useHealthcare } from '@/contexts/HealthcareContext';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 import { withInteractable } from '@tambo-ai/react';
@@ -42,12 +43,27 @@ const VitalMetric = ({ icon: Icon, label, value, unit, isAbnormal, colorClass = 
     </div>
 );
 
-export const PatientVitalsCardBase = ({
-    heartRate,
-    bloodPressure,
-    temperature,
-    oxygenSat
-}: VitalsProps) => {
+export const PatientVitalsCardBase = () => {
+    const { vitalsHistory } = useHealthcare();
+
+    // Helper to get latest value for a type
+    const getLatest = (type: string) => {
+        const entries = vitalsHistory.filter(v => v.type === type);
+        if (entries.length === 0) return null;
+        // Sort descending by date
+        return entries.sort((a, b) => new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime())[0];
+    };
+
+    const hr = getLatest('heart_rate');
+    const bp = getLatest('blood_pressure');
+    const temp = getLatest('temperature');
+    const o2 = getLatest('oxygen_sat');
+
+    // Values for display
+    const heartRate = hr ? hr.value : undefined;
+    const bloodPressure = bp ? (bp.meta || bp.value.toString()) : undefined; // Use meta for BP string if available
+    const temperature = temp ? temp.value : undefined;
+    const oxygenSat = o2 ? o2.value : undefined;
     // Simple logic for "abnormal" values for demo purposes
     const isTempHigh = temperature ? Number(temperature) > 99.5 : false;
 
@@ -59,43 +75,47 @@ export const PatientVitalsCardBase = ({
     }
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center space-x-2 mb-6 border-b border-slate-100 pb-4">
-                <Activity className="text-blue-600" size={24} />
-                <h2 className="text-lg font-semibold text-slate-800">Live Vitals Monitor</h2>
-            </div>
-
+        <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-                <VitalMetric
-                    icon={Heart}
-                    label="Heart Rate"
-                    value={heartRate || "--"}
-                    unit="bpm"
-                    colorClass="text-rose-500"
-                />
-                <VitalMetric
-                    icon={Activity}
-                    label="Blood Pressure"
-                    value={bloodPressure || "--/--"}
-                    unit="mmHg"
-                    isAbnormal={isBPHigh}
-                    colorClass="text-indigo-500"
-                />
-                <VitalMetric
-                    icon={Thermometer}
-                    label="Temperature"
-                    value={temperature || "--"}
-                    unit="°F"
-                    isAbnormal={isTempHigh}
-                    colorClass="text-orange-500"
-                />
-                <VitalMetric
-                    icon={Wind}
-                    label="O2 Saturation"
-                    value={oxygenSat || "--"}
-                    unit="%"
-                    colorClass="text-sky-500"
-                />
+                <div className="p-4 bg-red-50 rounded-xl border border-red-100 flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-full shadow-sm text-red-500">
+                        <Heart className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Heart Rate</div>
+                        <div className="text-xl font-bold text-slate-900">71 <span className="text-sm font-medium text-slate-400">bpm</span></div>
+                    </div>
+                </div>
+
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-full shadow-sm text-blue-500">
+                        <Activity className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Blood Pressure</div>
+                        <div className="text-xl font-bold text-slate-900">120/80 <span className="text-sm font-medium text-slate-400">mmHg</span></div>
+                    </div>
+                </div>
+
+                <div className="p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-full shadow-sm text-orange-500">
+                        <Thermometer className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Temperature</div>
+                        <div className="text-xl font-bold text-slate-900">-- <span className="text-sm font-medium text-slate-400">°F</span></div>
+                    </div>
+                </div>
+
+                <div className="p-4 bg-sky-50 rounded-xl border border-sky-100 flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-full shadow-sm text-sky-500">
+                        <Wind className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">O2 Saturation</div>
+                        <div className="text-xl font-bold text-slate-900">-- <span className="text-sm font-medium text-slate-400">%</span></div>
+                    </div>
+                </div>
             </div>
         </div>
     );

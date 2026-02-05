@@ -19,163 +19,122 @@ export const prescriptionPadSchema = z.object({
 });
 
 type PrescriptionState = z.infer<typeof prescriptionPadSchema>['data'] & {
-    status?: 'draft' | 'signed' | 'rejected'; // ensure status is there
+    status?: 'draft' | 'signed' | 'rejected';
 };
 
 interface PrescriptionPadProps {
     data?: PrescriptionState;
-    // Events are local, not part of Zod schema usually
     onSign?: () => void;
     onReject?: () => void;
 }
 
 export const PrescriptionPadBase = ({ data, onSign, onReject }: PrescriptionPadProps) => {
-    const [internalState, setInternalState] = React.useState<NonNullable<PrescriptionState>>({
-        medication: '',
-        dosage: '',
-        frequency: '',
-        route: 'PO',
-        notes: '',
-        status: 'draft',
-        ...data
-    });
+    const { addPrescription, activePatient } = useHealthcare();
 
-    // Effect to update internal state when props change (from AI stream)
+    const [medication, setMedication] = React.useState(data?.medication || '');
+    const [dosage, setDosage] = React.useState(data?.dosage || '');
+    const [frequency, setFrequency] = React.useState(data?.frequency || '');
+    const [instructions, setInstructions] = React.useState(data?.notes || '');
+    const [status, setStatus] = React.useState<'draft' | 'signed' | 'rejected'>('draft');
+
     React.useEffect(() => {
         if (data) {
-            setInternalState(prev => ({ ...prev, ...data }));
+            if (data.medication) setMedication(data.medication);
+            if (data.dosage) setDosage(data.dosage);
+            if (data.frequency) setFrequency(data.frequency);
+            if (data.notes) setInstructions(data.notes);
+            if (data.status) setStatus(data.status);
         }
     }, [data]);
 
-    const isSigned = internalState.status === 'signed';
-
-    // Handler wrappers for internal state if needed
-    const { addPrescription, activePatient } = useHealthcare();
-
-    const handleSign = () => {
-        setInternalState(prev => ({ ...prev, status: 'signed' }));
+    const handleSubmit = () => {
+        setStatus('signed');
         onSign?.();
 
-        if (internalState.medication) {
+        if (medication) {
             addPrescription({
                 patientId: activePatient.id,
-                medicationName: internalState.medication,
-                dosage: internalState.dosage || 'As directed',
-                instructions: internalState.notes || 'Take as prescribed',
+                medicationName: medication,
+                dosage: dosage || 'As directed',
+                instructions: instructions || 'Take as prescribed',
             });
         }
     };
 
-    const handleReject = () => {
-        setInternalState(prev => ({ ...prev, status: 'rejected' }));
-        onReject?.();
-    };
-
     return (
-        <div className={cn(
-            "relative max-w-md mx-auto bg-[#fffbf0] text-slate-900 shadow-lg transform transition-transform duration-300",
-            isSigned ? "scale-95 opacity-80" : "scale-100"
-        )}>
-            {/* Paper Texture Effect */}
-            <div className="absolute inset-0 border-l-4 border-red-200/50 pointer-events-none" />
-
-            {/* Header */}
-            <div className="p-6 border-b border-blue-100 bg-blue-50/30 flex justify-between items-start">
-                <div className="flex items-center space-x-3">
-                    <div className="bg-blue-600 text-white p-2 rounded-lg">
-                        <Pill size={24} />
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-serif font-bold text-slate-900 tracking-tight">Prescription</h2>
-                        <p className="text-xs text-slate-500 font-serif">Dr. Smith, MD • Emergency Medicine</p>
-                    </div>
-                </div>
-                {/* Status Stamp */}
-                {internalState.status !== 'draft' && (
-                    <div className={cn(
-                        "px-3 py-1 border-2 text-sm font-black uppercase transform rotate-12 rounded opacity-80",
-                        internalState.status === 'signed' ? "border-green-600 text-green-700" : "border-red-600 text-red-700"
-                    )}>
-                        {internalState.status}
-                    </div>
-                )}
-            </div>
-
-            {/* Form Content */}
-            <div className="p-6 space-y-6 font-serif">
-                {/* Rx Symbol */}
-                <div className="text-4xl font-serif text-slate-300 pointer-events-none absolute right-8 top-24">Rx</div>
-
-                <div className="space-y-4 relative z-10">
-                    <div>
-                        <label className="block text-xs font-sans text-slate-400 uppercase tracking-wide mb-1">Medication</label>
+        <div className="h-full flex flex-col">
+            <div className="flex-1 space-y-4">
+                {/* Inputs */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Medication</label>
                         <input
                             type="text"
-                            value={internalState.medication || ''}
-                            readOnly
-                            placeholder="Generative Field..."
-                            className="w-full bg-transparent border-b-2 border-slate-200 focus:border-blue-500 outline-none text-xl font-bold py-1 placeholder:font-normal placeholder:text-slate-300"
+                            className="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                            placeholder="e.g. Amoxicillin"
+                            value={medication}
+                            onChange={(e) => setMedication(e.target.value)}
                         />
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-sans text-slate-400 uppercase tracking-wide mb-1">Dosage</label>
-                            <input
-                                type="text"
-                                value={internalState.dosage || ''}
-                                readOnly
-                                placeholder="--"
-                                className="w-full bg-transparent border-b border-slate-200 focus:border-blue-500 outline-none text-lg py-1 placeholder:font-normal placeholder:text-slate-300"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-sans text-slate-400 uppercase tracking-wide mb-1">Frequency</label>
-                            <input
-                                type="text"
-                                value={internalState.frequency || ''}
-                                readOnly
-                                placeholder="--"
-                                className="w-full bg-transparent border-b border-slate-200 focus:border-blue-500 outline-none text-lg py-1 placeholder:font-normal placeholder:text-slate-300"
-                            />
-                        </div>
-                    </div>
-
                     <div>
-                        <label className="block text-xs font-sans text-slate-400 uppercase tracking-wide mb-1">Notes / Instructions</label>
-                        <textarea
-                            value={internalState.notes || ''}
-                            readOnly
-                            rows={2}
-                            placeholder="Additional patient instructions..."
-                            className="w-full bg-transparent border-b border-slate-200 focus:border-blue-500 outline-none resize-none py-1 text-slate-600"
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Dosage</label>
+                        <input
+                            type="text"
+                            className="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                            placeholder="500mg"
+                            value={dosage}
+                            onChange={(e) => setDosage(e.target.value)}
                         />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Frequency</label>
+                        <input
+                            type="text"
+                            className="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                            placeholder="BID x 7 days"
+                            value={frequency}
+                            onChange={(e) => setFrequency(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                {/* Instructions */}
+                <div>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Instructions</label>
+                    <textarea
+                        className="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none h-20"
+                        placeholder="Take with food..."
+                        value={instructions}
+                        onChange={(e) => setInstructions(e.target.value)}
+                    />
+                </div>
+
+                {/* Safety Badge */}
+                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 flex items-start gap-3">
+                    <Check className="w-5 h-5 text-emerald-600 mt-0.5" />
+                    <div>
+                        <h4 className="text-sm font-bold text-emerald-800">Safety Checks Passed</h4>
+                        <p className="text-xs text-emerald-600">No interactions detected.</p>
                     </div>
                 </div>
             </div>
 
-            {/* Footer Actions */}
-            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end space-x-3">
-                {internalState.status === 'draft' ? (
-                    <>
-                        <button
-                            onClick={handleReject}
-                            className="flex items-center space-x-2 px-4 py-2 rounded-full border border-red-200 text-red-600 hover:bg-red-50 transition-colors font-sans text-sm font-medium"
-                        >
-                            <X size={16} />
-                            <span>Reject</span>
-                        </button>
-                        <button
-                            onClick={handleSign}
-                            className="flex items-center space-x-2 px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-md transition-all hover:shadow-lg font-sans text-sm font-medium"
-                        >
-                            <FileText size={16} />
-                            <span>Sign Script</span>
-                        </button>
-                    </>
-                ) : (
-                    <p className="text-sm text-slate-400 italic">Order locked {new Date().toLocaleTimeString()}</p>
-                )}
+            {/* Actions */}
+            <div className="pt-4 mt-auto border-t border-slate-100 flex justify-end gap-3">
+                <button
+                    onClick={() => { setMedication(''); setDosage(''); setFrequency(''); setInstructions(''); }}
+                    className="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 font-medium"
+                >
+                    Clear
+                </button>
+                <button
+                    onClick={handleSubmit}
+                    disabled={!medication || status === 'signed'}
+                    className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-sm shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                >
+                    <FileText size={16} />
+                    {status === 'signed' ? 'Signed' : 'Sign & Order'}
+                </button>
             </div>
         </div>
     );

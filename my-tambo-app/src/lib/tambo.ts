@@ -20,6 +20,11 @@ import { z } from "zod";
 import { PatientVitalsCard, patientVitalsSchema } from "@/components/demos/ehr/PatientVitalsCard";
 import { BodyMapSelector, bodyMapSchema } from "@/components/demos/ehr/BodyMapSelector";
 import { PrescriptionPad, prescriptionPadSchema } from "@/components/demos/ehr/PrescriptionPad";
+import { LivingTreatmentTimeline, timelineSchema } from "@/components/demos/ehr/LivingTreatmentTimeline";
+import { AdaptiveIntakeForm, adaptiveIntakeSchema } from "@/components/demos/patient/AdaptiveIntakeForm";
+import { MedicalGuide, SymptomExplainer } from '@/components/demos/patient/EducationWidgets';
+import { LabResultList, labResultListSchema } from "@/components/demos/patient/LabResultList";
+import { MedicalImageAnalyzer, medicalImageAnalyzerSchema } from "@/components/demos/patient/MedicalImageAnalyzer";
 
 /**
  * tools
@@ -118,6 +123,56 @@ export const components: TamboComponent[] = [
     description: "A prescription form to draft, review, and sign medication orders.",
     component: PrescriptionPad,
     propsSchema: prescriptionPadSchema,
+  },
+  {
+    name: "LivingTreatmentTimeline",
+    description: "Visualizes the patient's vitals (heart rate, BP) over time along with medical events like prescriptions and lab results.",
+    component: LivingTreatmentTimeline,
+    propsSchema: timelineSchema,
+  },
+  {
+    name: "AdaptiveIntakeForm",
+    description: "A dynamic container that renders specific intake widgets (Pain Scale, Breathing Counter, Image Upload) based on the patient's context.",
+    component: AdaptiveIntakeForm,
+    propsSchema: adaptiveIntakeSchema,
+  },
+  {
+    name: "MedicalGuide",
+    description: "Display a step-by-step interactive medical guide or instruction set (e.g. 'How to use an inhaler', 'Preparation for X-ray').",
+    component: MedicalGuide,
+    propsSchema: z.object({
+      topic: z.string().describe("The topic of the guide (e.g. 'Using an Inhaler')"),
+      difficulty: z.enum(['easy', 'medium', 'hard']).optional().describe("Complexity level"),
+      steps: z.array(z.object({
+        title: z.string().describe("Title of the step"),
+        description: z.string().describe("Detailed instruction for this step"),
+        image_prompt: z.string().optional().describe("A visual description of what this step looks like (for potential generation)")
+      })).describe("List of sequential steps")
+    })
+  },
+  {
+    name: "SymptomExplainer",
+    description: "Educational card explaining a symptom, its causes, and biological context. Use when user asks 'Why does my head hurt?' or 'What is this rash?'.",
+    component: SymptomExplainer,
+    propsSchema: z.object({
+      symptom: z.string().optional().describe("The name of the symptom"),
+      severity_level: z.enum(['low', 'medium', 'high']).optional().describe("General severity assessment"),
+      possible_causes: z.array(z.string()).optional().describe("List of 3-5 potential common causes"),
+      biological_context: z.string().optional().describe("A simple, one-sentence explanation of the biological mechanism (e.g. 'Inflammation causes blood vessels to swell...')"),
+      recommended_action: z.string().optional().describe("Immediate advice (e.g. 'Rest and hydrate', 'See a doctor')")
+    })
+  },
+  {
+    name: "LabResultList",
+    description: "Displays a list of laboratory test results with status and trend indicators (up/down).",
+    component: LabResultList,
+    propsSchema: labResultListSchema,
+  },
+  {
+    name: "MedicalImageAnalyzer",
+    description: "An AI-powered tool to analyze uploaded medical images (X-rays, skin lesions, etc.) and provide clinical insights.",
+    component: MedicalImageAnalyzer,
+    propsSchema: medicalImageAnalyzerSchema,
   },
   // Add more components here
 ];
