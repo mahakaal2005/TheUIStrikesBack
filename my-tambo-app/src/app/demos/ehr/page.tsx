@@ -28,10 +28,11 @@ export default function EHRPage() {
             mcpServers={mcpServers}
         >
             <MedicalProvider>
-                <div className="flex h-screen bg-slate-50">
+                <div className="flex flex-col lg:flex-row h-screen bg-slate-50 overflow-hidden">
+
                     {/* Left: Chat/Transcript Log */}
-                    <div className="w-1/3 border-r border-gray-200 bg-white flex flex-col">
-                        <div className="p-4 border-b border-gray-100">
+                    <div className="w-full lg:w-1/3 h-[40vh] lg:h-full border-b lg:border-b-0 lg:border-r border-gray-200 bg-white flex flex-col">
+                        <div className="p-4 border-b border-gray-100 flex-none">
                             <h2 className="text-lg font-semibold text-gray-800">Transcript</h2>
                         </div>
 
@@ -42,7 +43,8 @@ export default function EHRPage() {
                     </div>
 
                     {/* Right: The "Patient Chart" (Generative UI Area) */}
-                    <div className="w-2/3 p-8 overflow-y-auto">
+                    <div className="w-full lg:w-2/3 h-[60vh] lg:h-full p-4 lg:p-8 overflow-y-auto">
+
                         <div className="max-w-screen-2xl mx-auto space-y-8">
                             <h1 className="text-2xl font-bold text-gray-900 mb-6">Patient Chart</h1>
 
@@ -50,8 +52,9 @@ export default function EHRPage() {
                             {/* We are passing initial/default props, but Tambo should take over if it targets them */}
 
                             {/* Dashboard Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 auto-rows-[minmax(450px,auto)] w-full">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 auto-rows-[minmax(450px,auto)] w-full">
                                 {/* 1. Vitals */}
+
                                 <DashboardWidget title="Live Vitals Monitor" icon={Activity} className="h-full">
                                     <PatientVitalsCard />
                                 </DashboardWidget>
