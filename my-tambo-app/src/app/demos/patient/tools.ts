@@ -180,5 +180,50 @@ export const patientTools: TamboTool[] = [
             success: z.boolean(),
             message: z.string()
         })
+    },
+    {
+        name: "analyzeMedicalImage",
+        description: "Trigger the medical image analysis interface for X-rays, skin conditions, or other visual data.",
+        tool: async (input: { context: string }) => {
+            return {
+                action: "show_component",
+                component: "MedicalImageAnalyzer",
+                props: { context: input.context }
+            }
+        },
+        inputSchema: z.object({
+            context: z.string().describe("The type of image or context (e.g. 'Chest X-Ray', 'Skin Lesion', 'MRI')")
+        }),
+        outputSchema: z.any()
+    },
+    {
+        name: "showMedicalGuide",
+        description: "Display an interactive step-by-step guide for a medical procedure or instruction.",
+        tool: async (input: { topic: string }) => {
+            return {
+                action: "show_component",
+                component: "MedicalGuide",
+                props: { topic: input.topic }
+            }
+        },
+        inputSchema: z.object({
+            topic: z.string().describe("The topic of the guide (e.g. 'How to use an inhaler')")
+        }),
+        outputSchema: z.any()
+    },
+    {
+        name: "explainSymptom",
+        description: "Show the educational symptom card to explain a specific issue.",
+        tool: async (input: { symptom: string }) => {
+            return {
+                action: "show_component",
+                component: "SymptomExplainer",
+                props: { symptom: input.symptom }
+            }
+        },
+        inputSchema: z.object({
+            symptom: z.string().describe("The name of the symptom to explain")
+        }),
+        outputSchema: z.any()
     }
 ];

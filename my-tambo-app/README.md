@@ -1,131 +1,96 @@
-# Tambo Template
+# Next-Gen AI Healthcare Platform
 
-This is a starter NextJS app with Tambo hooked up to get your AI app development started quickly.
+## Overview
+This project is a comprehensive, AI-enhanced Electronic Health Record (EHR) and patient portal ecosystem designed to bridge the gap between complex medical data and patient understanding. The platform integrates interactive AI agents, advanced data visualization, and streamlined clinical workflows into a unified, responsive interface.
 
-## Get Started
+It leverages the **Tambo AI SDK** to provide intelligent features like symptom explanation, medical guides, and automated clinical reasoning, all wrapped in a modern, mobile-first UI built with Next.js 15 and Tailwind CSS v4.
 
-1. Run `npm create-tambo@latest my-tambo-app` for a new project
+## Key Features
 
-2. `npm install`
+### AI-Powered Clinical Tools
+- **Nexus Health Gateway:** The central intelligence agent that uses natural language to route users (Patient, Doctor, Lab, Pharmacy) to the correct portal based on intent.
+- **Living Treatment Timeline:** Visualizes complex patient history, combining vital signs (HR, BP) with medical events for rapid clinical assessment.
+- **Symptom Explainer & Medical Guide:** Interactive AI agents that translate medical jargon into patient-friendly advice and step-by-step procedural guides.
+- **Medical Image Analysis:** Integrated AI-driven image analysis simulating immediate clinical findings for X-rays and skin conditions.
+- **AI Counseling Assistant:** Streamlines pharmacy workflows by automating medication advice generation based on prescriptions.
 
-3. `npx tambo init`
+### Advanced Data Visualization
+- **Smart Lab Trends:** Dynamic charts using Recharts to track lab results over time, highlighting critical trends and deviations for early intervention.
+- **Interactive Body Map:** A visual interface allowing patients to pinpoint symptom locations intuitively.
 
-- or rename `example.env.local` to `.env.local` and add your tambo API key you can get for free [here](https://tambo.co/dashboard).
+### Modern Architecture
+- **Unified UI System:** A modular, reusable component library ensuring design consistency across Patient, Doctor, Lab, and Pharmacy portals.
+- **Responsive Design:** A fully responsive "mobile-first" experience with seamless animations and transitions using Framer Motion.
 
-4. Run `npm run dev` and go to `localhost:3000` to use the app!
+## Technology Stack
 
-## Customizing
+### Core Frameworks
+- **Frontend:** Next.js 15 (App Router), React 19, TypeScript
+- **Styling:** Tailwind CSS v4, Radix UI, Lucide React
+- **Animations:** Framer Motion
 
-### Change what components tambo can control
+### AI & Data
+- **AI Integration:** Tambo AI SDK (`@tambo-ai/react`, `@tambo-ai/typescript-sdk`)
+- **Validation:** Zod
+- **Visualization:** Recharts
 
-You can see how components are registered with tambo in `src/lib/tambo.ts`:
+### Text Editing
+- **Rich Text:** TipTap
 
-```tsx
-export const components: TamboComponent[] = [
-  {
-    name: "Graph",
-    description:
-      "A component that renders various types of charts (bar, line, pie) using Recharts. Supports customizable data visualization with labels, datasets, and styling options.",
-    component: Graph,
-    propsSchema: graphSchema,
-  },
-  // Add more components here
-];
-```
+## Getting Started
 
-You can install the graph component into any project with:
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
 
-```bash
-npx tambo add graph
-```
+### Installation
 
-The example Graph component demonstrates several key features:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/next-gen-healthcare-platform.git
+   ```
 
-- Different prop types (strings, arrays, enums, nested objects)
-- Multiple chart types (bar, line, pie)
-- Customizable styling (variants, sizes)
-- Optional configurations (title, legend, colors)
-- Data visualization capabilities
+2. Navigate to the project directory:
+   ```bash
+   cd my-tambo-app
+   ```
 
-Update the `components` array with any component(s) you want tambo to be able to use in a response!
+3. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-You can find more information about the options [here](https://docs.tambo.co/concepts/generative-interfaces/generative-components)
+4. Set up environment variables:
+   Create a `.env.local` file in the root directory and add your necessary API keys (e.g., Tambo API key).
 
-### Add tools for tambo to use
+5. Run the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-Tools are defined with `inputSchema` and `outputSchema`:
+6. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```tsx
-export const tools: TamboTool[] = [
-  {
-    name: "globalPopulation",
-    description:
-      "A tool to get global population trends with optional year range filtering",
-    tool: getGlobalPopulationTrend,
-    inputSchema: z.object({
-      startYear: z.number().optional(),
-      endYear: z.number().optional(),
-    }),
-    outputSchema: z.array(
-      z.object({
-        year: z.number(),
-        population: z.number(),
-        growthRate: z.number(),
-      }),
-    ),
-  },
-];
-```
+## Project Structure
 
-Find more information about tools [here.](https://docs.tambo.co/concepts/tools)
+- `src/app`: Application routes and pages (Next.js App Router).
+- `src/components`: Reusable UI components and feature-specific modules.
+- `src/lib`: Utility functions and shared logic.
+- `public`: Static assets.
 
-### The Magic of Tambo Requires the TamboProvider
+## Contributing
 
-Make sure in the TamboProvider wrapped around your app:
+Contributions are welcome. Please ensure that you follow the existing code style and conventions.
 
-```tsx
-...
-<TamboProvider
-  apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
-  components={components} // Array of components to control
-  tools={tools} // Array of tools it can use
->
-  {children}
-</TamboProvider>
-```
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-In this example we do this in the `Layout.tsx` file, but you can do it anywhere in your app that is a client component.
+## License
 
-### Voice input
-
-The template includes a `DictationButton` component using the `useTamboVoice` hook for speech-to-text input.
-
-### MCP (Model Context Protocol)
-
-The template includes MCP support for connecting to external tools and resources. You can use the MCP hooks from `@tambo-ai/react/mcp`:
-
-- `useTamboMcpPromptList` - List available prompts from MCP servers
-- `useTamboMcpPrompt` - Get a specific prompt
-- `useTamboMcpResourceList` - List available resources
-
-See `src/components/tambo/mcp-components.tsx` for example usage.
-
-### Change where component responses are shown
-
-The components used by tambo are shown alongside the message response from tambo within the chat thread, but you can have the result components show wherever you like by accessing the latest thread message's `renderedComponent` field:
-
-```tsx
-const { thread } = useTambo();
-const latestComponent =
-  thread?.messages[thread.messages.length - 1]?.renderedComponent;
-
-return (
-  <div>
-    {latestComponent && (
-      <div className="my-custom-wrapper">{latestComponent}</div>
-    )}
-  </div>
-);
-```
-
-For more detailed documentation, visit [Tambo's official docs](https://docs.tambo.co).
+This project is licensed under the MIT License.
