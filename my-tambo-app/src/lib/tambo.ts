@@ -141,13 +141,13 @@ export const components: TamboComponent[] = [
     description: "Display a step-by-step interactive medical guide or instruction set (e.g. 'How to use an inhaler', 'Preparation for X-ray').",
     component: MedicalGuide,
     propsSchema: z.object({
-      topic: z.string().describe("The topic of the guide (e.g. 'Using an Inhaler')"),
+      topic: z.string().optional().describe("The topic of the guide (e.g. 'Using an Inhaler')"),
       difficulty: z.enum(['easy', 'medium', 'hard']).optional().describe("Complexity level"),
       steps: z.array(z.object({
-        title: z.string().describe("Title of the step"),
-        description: z.string().describe("Detailed instruction for this step"),
+        title: z.string().optional().describe("Title of the step"),
+        description: z.string().optional().describe("Detailed instruction for this step"),
         image_prompt: z.string().optional().describe("A visual description of what this step looks like (for potential generation)")
-      })).describe("List of sequential steps")
+      })).optional().describe("List of sequential steps")
     })
   },
   {

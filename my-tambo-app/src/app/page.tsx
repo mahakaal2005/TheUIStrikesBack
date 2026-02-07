@@ -1,70 +1,117 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, Activity, FileText } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { TamboProvider } from "@tambo-ai/react";
+import { useMcpServers } from "@/components/tambo/mcp-config-modal";
+import { MessageThreadFull } from "@/components/tambo/message-thread-full";
+import { components } from "@/lib/tambo";
+import { z } from "zod";
+import { Sparkles, Bot } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Home() {
+  const router = useRouter();
+  const mcpServers = useMcpServers();
+  const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [targetPortal, setTargetPortal] = useState<string | null>(null);
+
+  const universalTools = React.useMemo(() => [
+    {
+      name: "accessPortal",
+      description: "Route the user to the correct healthcare portal based on their role or intent.",
+      tool: async (input: { role: 'doctor' | 'patient' | 'lab' | 'pharmacy' }) => {
+        setIsRedirecting(true);
+        setTargetPortal(input.role);
+
+        // Simulate a brief delay for effect before continuous routing
+        setTimeout(() => {
+          if (input.role === 'doctor') router.push('/demos/ehr');
+          else if (input.role === 'patient') router.push('/demos/patient');
+          else if (input.role === 'lab') router.push('/demos/lab');
+          else if (input.role === 'pharmacy') router.push('/demos/pharmacy');
+        }, 1500);
+
+        return {
+          action: "redirect",
+          target: input.role,
+          message: `Redirecting you to the ${input.role} portal...`
+        };
+      },
+      inputSchema: z.object({
+        role: z.enum(['doctor', 'patient', 'lab', 'pharmacy']).describe("The user's role or the intent of the portal they need.")
+      }),
+      outputSchema: z.any()
+    }
+  ], [router]);
+
+  if (!apiKey) return <div className="p-4 text-red-500">Missing API Key</div>;
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)]">
-      <main className="max-w-4xl w-full p-8 space-y-12">
-        <div className="flex flex-col items-center text-center space-y-6">
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-            <Image
-              src="/Octo-Icon.svg"
-              alt="Tambo AI Logo"
-              width={80}
-              height={80}
-              className="mb-0"
-            />
-          </div>
+    <TamboProvider
+      apiKey={apiKey}
+      components={components}
+      tools={universalTools}
+      tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
+      mcpServers={mcpServers}
+    >
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] relative overflow-hidden">
 
-          <h1 className="text-5xl font-bold text-slate-900 tracking-tight">
-            Zero-Click EHR Scribe
-          </h1>
-          <p className="text-xl text-slate-500 max-w-2xl">
-            A Generative UI demo for the Tambo Hackathon. Experience the future of medical charting where the interface adapts to the conversation.
-          </p>
+        {/* Background Effects */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black opacity-80"></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Main Demo Card */}
-          <Link href="/demos/ehr" className="group">
-            <div className="bg-white h-full p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-blue-300 transition-all duration-300 flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Activity className="text-blue-600 w-8 h-8" />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors">Launch Demo</h2>
-              <p className="text-slate-500 mb-8">
-                Enter the EHR Scribe interface. Simulate a patient encounter and watch the chart build itself.
-              </p>
-              <div className="mt-auto flex items-center text-blue-600 font-medium">
-                Start Scenarios <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </Link>
+        <main className="max-w-2xl w-full p-8 z-10 relative flex flex-col h-[80vh]">
 
-          {/* Documentation/Info Card */}
-          <Link href="https://github.com/mahakaal2005/TheUIStrikesBack" target="_blank" className="group">
-            <div className="bg-white h-full p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-slate-300 transition-all duration-300 flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <FileText className="text-slate-600 w-8 h-8" />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-slate-700 transition-colors">View Source</h2>
-              <p className="text-slate-500 mb-8">
-                Check out the code, PRD, and implementation details on GitHub.
-              </p>
-              <div className="mt-auto flex items-center text-slate-600 font-medium">
-                Open Repository <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-sm rounded-2xl mb-6 shadow-xl border border-white/10">
+              <Bot className="w-10 h-10 text-indigo-400" />
             </div>
-          </Link>
-        </div>
-      </main>
+            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
+              Nexus Health Gateway
+            </h1>
+            <p className="text-lg text-slate-400 max-w-lg mx-auto">
+              I am the central intelligence for your healthcare ecosystem.
+              <br />Tell me who you are or what you need.
+            </p>
+          </motion.div>
 
-      <footer className="py-8 text-slate-400 text-sm">
-        Built with Tambo AI SDK & Next.js
-      </footer>
-    </div>
+          {/* Chat Interface */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex-1 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col"
+          >
+            {isRedirecting ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full mb-6"
+                />
+                <h3 className="text-2xl font-bold text-white mb-2">Generating Interface...</h3>
+                <p className="text-slate-400">Configuring the {targetPortal} portal for your session.</p>
+              </div>
+            ) : (
+              <MessageThreadFull className="h-full" />
+            )}
+          </motion.div>
+
+        </main>
+
+        <footer className="py-8 text-slate-600 text-sm z-10">
+          Powered by Tambo AI & Next.js
+        </footer>
+      </div>
+    </TamboProvider>
   );
 }
