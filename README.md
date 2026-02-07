@@ -46,7 +46,7 @@ It leverages the **Tambo AI SDK** to provide intelligent features like symptom e
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/next-gen-healthcare-platform.git
+   git clone https://github.com/mahakaal2005/TheUIStrikesBack
    ```
 
 2. Navigate to the project directory:
