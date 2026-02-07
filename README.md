@@ -1,4 +1,5 @@
 # Next-Gen AI Healthcare Platform
+[![Nexus Health Gateway](https://img.shields.io/badge/Status-Nexus%20Health%20Gateway%20Live-indigo?style=for-the-badge)](http://localhost:3000)
 
 ## Overview
 This project is a comprehensive, AI-enhanced Electronic Health Record (EHR) and patient portal ecosystem designed to bridge the gap between complex medical data and patient understanding. The platform integrates interactive AI agents, advanced data visualization, and streamlined clinical workflows into a unified, responsive interface.
@@ -8,6 +9,7 @@ It leverages the **Tambo AI SDK** to provide intelligent features like symptom e
 ## Key Features
 
 ### AI-Powered Clinical Tools
+- **Nexus Health Gateway:** The central intelligence agent that uses natural language to route users (Patient, Doctor, Lab, Pharmacy) to the correct portal based on intent.
 - **Living Treatment Timeline:** Visualizes complex patient history, combining vital signs (HR, BP) with medical events for rapid clinical assessment.
 - **Symptom Explainer & Medical Guide:** Interactive AI agents that translate medical jargon into patient-friendly advice and step-by-step procedural guides.
 - **Medical Image Analysis:** Integrated AI-driven image analysis simulating immediate clinical findings for X-rays and skin conditions.
@@ -46,7 +48,7 @@ It leverages the **Tambo AI SDK** to provide intelligent features like symptom e
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/mahakaal2005/TheUIStrikesBack
+   git clone https://github.com/yourusername/next-gen-healthcare-platform.git
    ```
 
 2. Navigate to the project directory:
@@ -93,3 +95,4 @@ Contributions are welcome. Please ensure that you follow the existing code style
 ## License
 
 This project is licensed under the MIT License.
+
