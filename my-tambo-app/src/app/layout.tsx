@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Agentation } from "agentation";
 import "./globals.css";
 import { HealthcareProvider } from "@/contexts/HealthcareContext";
 
@@ -25,6 +26,7 @@ export default function RootLayout({
       >
         <HealthcareProvider>
           {children}
+          {process.env.NODE_ENV === "development" && <Agentation />}
         </HealthcareProvider>
       </body>
     </html>

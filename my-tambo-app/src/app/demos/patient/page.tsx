@@ -13,9 +13,7 @@ import { MedicalGuide, SymptomExplainer } from '@/components/demos/patient/Educa
 import { PatientVitalsCard } from '@/components/demos/ehr/PatientVitalsCard';
 import { LivingTreatmentTimeline } from '@/components/demos/ehr/LivingTreatmentTimeline';
 import { MedicalImageAnalyzer } from '@/components/demos/patient/MedicalImageAnalyzer';
-import { DashboardWidget } from '@/components/ui/dashboard-widget';
-import { FeatureDemoController } from '@/components/demos/patient/FeatureDemoController';
-import { User, Activity, Calendar, GitGraph, ChevronDown, ChevronUp, LayoutGrid, BookOpen } from 'lucide-react';
+import { PatientHeader } from '@/components/patient/PatientHeader';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -72,11 +70,66 @@ const patientComponents = [
     }
 ];
 
-
-
-export default function GenerativePatientPage() {
+export default function PatientPage() {
+    const [isDashboardExpanded, setIsDashboardExpanded] = React.useState(true);
     const mcpServers = useMcpServers();
     const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
+
+    // Auto-submit user message from sessionStorage
+    React.useEffect(() => {
+        // CRITICAL: Only run on patient demo page to prevent cross-page pollution
+        if (typeof window === 'undefined') return;
+        if (!window.location.pathname.includes('/demos/patient')) {
+            console.log('[AUTO-SUBMIT] Skipped - not on patient page (pathname:', window.location.pathname, ')');
+            return;
+        }
+
+        console.log('[AUTO-SUBMIT] Effect triggered on patient page');
+        const userMessage = sessionStorage.getItem('userMessage');
+        console.log('[AUTO-SUBMIT] userMessage:', userMessage);
+
+        if (!userMessage) {
+            console.log('[AUTO-SUBMIT] No message to submit');
+            return;
+        }
+
+        sessionStorage.removeItem('userMessage');
+        console.log('[AUTO-SUBMIT] Message removed from storage');
+
+        // Optimized: Check for editor with retry mechanism instead of fixed delay
+        const findEditorAndSubmit = (retryCount = 0, maxRetries = 20) => {
+            const editor = document.querySelector('.tiptap.ProseMirror') as HTMLElement;
+
+            if (editor) {
+                console.log('[AUTO-SUBMIT] ✅ Found Tiptap editor');
+                editor.innerHTML = `<p>${userMessage}</p>`;
+                editor.dispatchEvent(new Event('input', { bubbles: true }));
+                console.log('[AUTO-SUBMIT] Value set, events dispatched');
+
+                // Reduced delay for button rerender
+                setTimeout(() => {
+                    const submitButton = document.querySelector('button[aria-label*="Send"]') as HTMLButtonElement;
+                    console.log('[AUTO-SUBMIT] Found button:', !!submitButton);
+
+                    if (submitButton) {
+                        submitButton.click();
+                        console.log('[AUTO-SUBMIT] ✅ Message submitted!');
+                    } else {
+                        console.error('[AUTO-SUBMIT] ❌ No submit button found');
+                    }
+                }, 200); // Reduced from 500ms
+            } else if (retryCount < maxRetries) {
+                // Retry every 100ms instead of waiting 2s upfront
+                console.log(`[AUTO-SUBMIT] Editor not ready, retry ${retryCount + 1}/${maxRetries}`);
+                setTimeout(() => findEditorAndSubmit(retryCount + 1, maxRetries), 100);
+            } else {
+                console.error('[AUTO-SUBMIT] ❌ Tiptap editor not found after max retries');
+            }
+        };
+
+        // Start checking after minimal delay (reduced from 2000ms to 300ms)
+        setTimeout(() => findEditorAndSubmit(), 300);
+    }, []);
 
     if (!apiKey) {
         return (
@@ -94,89 +147,25 @@ export default function GenerativePatientPage() {
             tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
             mcpServers={mcpServers}
         >
+            {/* Skip to chat link for accessibility */}
+            <a
+                href="#chat"
+                className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-white px-4 py-2 rounded-lg shadow-lg z-50 text-cyan-600 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+                Skip to chat
+            </a>
+
             <div className="flex h-screen bg-slate-50 font-[family-name:var(--font-geist-sans)]">
-                {/* Content Container */}
-                <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 max-w-5xl mx-auto flex flex-col">
 
-                    {/* Chat Column (Now includes Profile Header) */}
-                    <div className="w-[450px] flex flex-col border-r border-indigo-100 bg-white shadow-2xl z-10 relative">
-                        {/* Merged Header: Profile + Title */}
-                        <div className="p-4 border-b border-indigo-50 bg-indigo-50/30 flex items-center gap-3">
-                            <div className="relative">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
-                                    AM
-                                </div>
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                            </div>
-                            <div>
-                                <h2 className="font-bold text-slate-800 leading-tight">Alex Morgan</h2>
-                                <p className="text-xs text-slate-500 font-medium">Patient ID: #84920</p>
-                            </div>
-                            <div className="ml-auto">
-                                <span className="px-2 py-1 bg-white border border-indigo-100 rounded text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
-                                    Online
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Tips / Alerts Section (previously in sidebar) */}
-                        <div className="px-4 pt-4 pb-2">
-                            <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 flex items-start gap-3">
-                                <div className="p-1.5 bg-amber-100 rounded-full shrink-0 mt-0.5">
-                                    <Activity className="w-3 h-3 text-amber-700" />
-                                </div>
-                                <div>
-                                    <h4 className="text-xs font-bold text-amber-900 uppercase tracking-wide mb-0.5">Health Tip</h4>
-                                    <p className="text-xs text-amber-800 leading-relaxed">
-                                        Your blood pressure is slightly elevated today. Remember to stay hydrated.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Chat Interface */}
-                        <div className="flex-1 overflow-hidden relative flex flex-col">
-                            <MessageThreadFull />
-                        </div>
+                    {/* Compact header */}
+                    <div className="p-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+                        <PatientHeader />
                     </div>
 
-                    {/* Dashboard Grid Column (Right) */}
-                    <div className="flex-1 overflow-y-auto bg-slate-50/50 p-6">
-                        <div className="max-w-6xl mx-auto">
-                            <h1 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                                <Activity className="w-6 h-6 text-indigo-600" />
-                                Live Health Dashboard
-                            </h1>
-
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-20 auto-rows-[minmax(400px,auto)]">
-                                {/* 1. Vitals Monitor */}
-                                <DashboardWidget title="Live Vitals Monitor" icon={Activity}>
-                                    <PatientVitalsCard />
-                                </DashboardWidget>
-
-                                {/* 2. Treatment Timeline */}
-                                <DashboardWidget title="Events & Timeline" icon={GitGraph}>
-                                    <LivingTreatmentTimeline />
-                                </DashboardWidget>
-
-                                {/* 3. Symptom Map */}
-                                <DashboardWidget title="Symptom Topology" icon={User}>
-                                    <div className="flex justify-center h-full items-center">
-                                        <BodyMapSelector highlightedRegions={['head', 'chest']} />
-                                    </div>
-                                </DashboardWidget>
-
-                                {/* 4. AI Image Analysis */}
-                                <DashboardWidget title="AI Diagnostics" icon={LayoutGrid}>
-                                    <MedicalImageAnalyzer context="Dermatology Scan" />
-                                </DashboardWidget>
-
-                                {/* 5. Feature Demos (New) */}
-                                <DashboardWidget title="Interactive Features Demo" icon={BookOpen} className="xl:col-span-2">
-                                    <FeatureDemoController />
-                                </DashboardWidget>
-                            </div>
-                        </div>
+                    {/* Full-width chat - Tambo injects components contextually */}
+                    <div id="chat" className="flex-1 overflow-y-auto p-6">
+                        <MessageThreadFull />
                     </div>
 
                 </div>

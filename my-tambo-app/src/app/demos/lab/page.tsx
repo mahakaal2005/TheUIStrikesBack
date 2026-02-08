@@ -6,7 +6,7 @@ import { DashboardWidget } from '@/components/ui/dashboard-widget';
 import { Beaker, CheckCircle, Clock, ClipboardList, AlertTriangle, FileText, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { TrendChart } from '@/components/charts/TrendChart';
 
 // AI Integration
 import { TamboProvider } from "@tambo-ai/react";
@@ -399,17 +399,7 @@ export default function LabPage() {
                                                     </div>
 
                                                     <div className="flex-1 min-h-[300px] w-full bg-slate-50 rounded-xl p-4 border border-slate-100">
-                                                        <ResponsiveContainer width="100%" height="100%">
-                                                            <LineChart data={getTrendData(completedOrders.find(o => o.id === viewTrendId)?.testName || '')}>
-                                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                                                <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                                                                <YAxis domain={['auto', 'auto']} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                                                                <Tooltip
-                                                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                                                />
-                                                                <Line type="monotone" dataKey="value" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff' }} />
-                                                            </LineChart>
-                                                        </ResponsiveContainer>
+                                                        <TrendChart data={getTrendData(completedOrders.find(o => o.id === viewTrendId)?.testName || '')} />
                                                     </div>
                                                 </div>
                                             </DashboardWidget>

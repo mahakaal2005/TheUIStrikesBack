@@ -1,117 +1,140 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { TamboProvider } from "@tambo-ai/react";
-import { useMcpServers } from "@/components/tambo/mcp-config-modal";
-import { MessageThreadFull } from "@/components/tambo/message-thread-full";
-import { components } from "@/lib/tambo";
-import { z } from "zod";
-import { Sparkles, Bot } from "lucide-react";
+import { SimpleChatbox } from "@/components/simple-chatbox";
+import { Bot } from "lucide-react";
 import { motion } from "framer-motion";
+
+// Keyword lists for smart routing
+const SYMPTOM_KEYWORDS = [
+  'headache', 'pain', 'fever', 'nausea', 'dizzy', 'cough', 'cold', 'flu',
+  'sick', 'hurt', 'ache', 'sore', 'bleeding', 'injury', 'vomit', 'rash',
+  'swelling', 'fatigue', 'tired', 'weak', 'chest pain', 'stomach', 'migraine'
+];
+
+const LAB_KEYWORDS = ['lab', 'test', 'blood work', 'specimen', 'results', 'analysis'];
+const PHARMACY_KEYWORDS = ['prescription', 'medication', 'pharmacy', 'refill', 'drug'];
+const DOCTOR_KEYWORDS = ['doctor', 'physician', 'clinical', 'ehr', 'patient encounter', 'chart'];
 
 export default function Home() {
   const router = useRouter();
-  const mcpServers = useMcpServers();
-  const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [targetPortal, setTargetPortal] = useState<string | null>(null);
+  const [targetPortal, setTargetPortal] = useState<string>('patient');
 
-  const universalTools = React.useMemo(() => [
-    {
-      name: "accessPortal",
-      description: "Route the user to the correct healthcare portal based on their role or intent.",
-      tool: async (input: { role: 'doctor' | 'patient' | 'lab' | 'pharmacy' }) => {
-        setIsRedirecting(true);
-        setTargetPortal(input.role);
+  // Determine which portal to route to based on message content
+  const determinePortal = useCallback((message: string): string => {
+    const lowerMessage = message.toLowerCase();
 
-        // Simulate a brief delay for effect before continuous routing
-        setTimeout(() => {
-          if (input.role === 'doctor') router.push('/demos/ehr');
-          else if (input.role === 'patient') router.push('/demos/patient');
-          else if (input.role === 'lab') router.push('/demos/lab');
-          else if (input.role === 'pharmacy') router.push('/demos/pharmacy');
-        }, 1500);
-
-        return {
-          action: "redirect",
-          target: input.role,
-          message: `Redirecting you to the ${input.role} portal...`
-        };
-      },
-      inputSchema: z.object({
-        role: z.enum(['doctor', 'patient', 'lab', 'pharmacy']).describe("The user's role or the intent of the portal they need.")
-      }),
-      outputSchema: z.any()
+    if (SYMPTOM_KEYWORDS.some(keyword => lowerMessage.includes(keyword))) {
+      return 'patient';
+    } else if (LAB_KEYWORDS.some(keyword => lowerMessage.includes(keyword))) {
+      return 'lab';
+    } else if (PHARMACY_KEYWORDS.some(keyword => lowerMessage.includes(keyword))) {
+      return 'pharmacy';
+    } else if (DOCTOR_KEYWORDS.some(keyword => lowerMessage.includes(keyword))) {
+      return 'doctor';
     }
-  ], [router]);
 
-  if (!apiKey) return <div className="p-4 text-red-500">Missing API Key</div>;
+    // Default to patient portal
+    return 'patient';
+  }, []);
+
+  // Handle message submission
+  const handleSubmit = useCallback((message: string) => {
+    // Determine target portal
+    const portal = determinePortal(message);
+    setTargetPortal(portal);
+
+    // Show loading screen
+    setIsRedirecting(true);
+
+    // Store the user's message in sessionStorage so the portal can use it
+    sessionStorage.setItem('userMessage', message);
+    sessionStorage.setItem('targetPortal', portal);
+
+    // Route immediately
+    requestAnimationFrame(() => {
+      if (portal === 'doctor') router.push('/demos/ehr');
+      else if (portal === 'patient') router.push('/demos/patient');
+      else if (portal === 'lab') router.push('/demos/lab');
+      else if (portal === 'pharmacy') router.push('/demos/pharmacy');
+    });
+  }, [router, determinePortal]);
 
   return (
-    <TamboProvider
-      apiKey={apiKey}
-      components={components}
-      tools={universalTools}
-      tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
-      mcpServers={mcpServers}
-    >
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] relative overflow-hidden">
+    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] relative overflow-hidden">
 
-        {/* Background Effects */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black opacity-80"></div>
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-
-        <main className="max-w-2xl w-full p-8 z-10 relative flex flex-col h-[80vh]">
-
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-sm rounded-2xl mb-6 shadow-xl border border-white/10">
-              <Bot className="w-10 h-10 text-indigo-400" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
-              Nexus Health Gateway
-            </h1>
-            <p className="text-lg text-slate-400 max-w-lg mx-auto">
-              I am the central intelligence for your healthcare ecosystem.
-              <br />Tell me who you are or what you need.
-            </p>
-          </motion.div>
-
-          {/* Chat Interface */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex-1 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col"
-          >
-            {isRedirecting ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full mb-6"
-                />
-                <h3 className="text-2xl font-bold text-white mb-2">Generating Interface...</h3>
-                <p className="text-slate-400">Configuring the {targetPortal} portal for your session.</p>
-              </div>
-            ) : (
-              <MessageThreadFull className="h-full" />
-            )}
-          </motion.div>
-
-        </main>
-
-        <footer className="py-8 text-slate-600 text-sm z-10">
-          Powered by Tambo AI & Next.js
-        </footer>
+      {/* Background Effects */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black opacity-80"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
-    </TamboProvider>
+
+      <main className="max-w-4xl w-full p-8 z-10 relative">
+
+        {isRedirecting ? (
+          // Loading Screen
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center text-center min-h-[400px]"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-20 h-20 border-4 border-indigo-500 border-t-transparent rounded-full mb-8"
+            />
+            <h3 className="text-3xl font-bold text-white mb-3">Generating Interface...</h3>
+            <p className="text-slate-400 text-lg">Configuring the {targetPortal} portal for your session.</p>
+          </motion.div>
+        ) : (
+          // Main Interface
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-12"
+            >
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-sm rounded-2xl mb-6 shadow-xl border border-white/10">
+                <Bot className="w-12 h-12 text-indigo-400" />
+              </div>
+              <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4">
+                Nexus Health Gateway
+              </h1>
+              <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+                Your intelligent healthcare companion.
+                <br />
+                Tell me what you need, and I'll guide you to the right place.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <SimpleChatbox
+                onSubmit={handleSubmit}
+                placeholder="Describe your symptoms, ask about lab results, or tell me what you need..."
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="mt-8 text-center"
+            >
+              <p className="text-slate-500 text-sm">
+                Powered by Tambo AI & Next.js
+              </p>
+            </motion.div>
+          </>
+        )}
+
+      </main>
+    </div>
   );
 }
