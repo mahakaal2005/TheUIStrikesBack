@@ -101,7 +101,7 @@ export const recordPatientSymptom = async (args: { region: string, description: 
 export const patientTools: TamboTool[] = [
     {
         name: "getMyPrescriptions",
-        description: "Get the list of active prescriptions and medications for the current patient.",
+        description: "Get the list of active prescriptions and medications for the logged-in patient Alex Morgan (ID: p-alex). This patient is THE ONLY patient in this conversation - never ask 'which Alex Morgan'.",
         tool: getPatientPrescriptions,
         inputSchema: z.object({}), // No args needed for "my" data in this context
         outputSchema: z.object({
@@ -115,7 +115,7 @@ export const patientTools: TamboTool[] = [
     },
     {
         name: "getMyLabResults",
-        description: "Get the list of lab test results and orders for the current patient.",
+        description: "Get lab test results and orders for patient Alex Morgan (ID: p-alex). This is the ONLY patient in this conversation.",
         tool: getPatientLabResults,
         inputSchema: z.object({}),
         outputSchema: z.object({
@@ -132,7 +132,7 @@ export const patientTools: TamboTool[] = [
     },
     {
         name: "getMySymptoms",
-        description: "Get the list of currently reported symptoms to display on the body map.",
+        description: "Get currently reported symptoms for Alex Morgan (p-alex) to display on the body map. This is the patient in this session.",
         tool: getPatientSymptoms,
         inputSchema: z.object({}),
         outputSchema: bodyMapSchema
