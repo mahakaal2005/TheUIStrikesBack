@@ -1,5 +1,4 @@
 # Next-Gen AI Healthcare Platform
-[![Nexus Health Gateway](https://img.shields.io/badge/Status-Nexus%20Health%20Gateway%20Live-indigo?style=for-the-badge)](http://localhost:3000)
 
 ## Overview
 This project is a comprehensive, AI-enhanced Electronic Health Record (EHR) and patient portal ecosystem designed to bridge the gap between complex medical data and patient understanding. The platform integrates interactive AI agents, advanced data visualization, and streamlined clinical workflows into a unified, responsive interface.
@@ -95,4 +94,3 @@ Contributions are welcome. Please ensure that you follow the existing code style
 ## License
 
 This project is licensed under the MIT License.
-
