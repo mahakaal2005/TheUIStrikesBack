@@ -4,6 +4,7 @@ import React from 'react';
 import { TamboProvider } from "@tambo-ai/react";
 import { MessageThreadFull } from "@/components/tambo/message-thread-full";
 import { useMcpServers } from "@/components/tambo/mcp-config-modal";
+import { useHealthcare } from "@/contexts/HealthcareContext";
 import { patientTools } from './tools';
 import { MedicationList, medicationListSchema } from '@/components/demos/patient/MedicationList';
 import { LabResultList, labResultListSchema } from '@/components/demos/patient/LabResultList';
@@ -74,6 +75,7 @@ export default function PatientPage() {
     const [isDashboardExpanded, setIsDashboardExpanded] = React.useState(true);
     const mcpServers = useMcpServers();
     const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
+    const { activePatient } = useHealthcare();
 
     // Auto-submit user message from sessionStorage
     React.useEffect(() => {
@@ -160,7 +162,11 @@ export default function PatientPage() {
 
                     {/* Compact header */}
                     <div className="p-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-                        <PatientHeader />
+                        <PatientHeader
+                            name={activePatient.name}
+                            patientId={activePatient.id}
+                            status="online"
+                        />
                     </div>
 
                     {/* Full-width chat - Tambo injects components contextually */}
